@@ -1,0 +1,55 @@
+name: Supabase Migrations
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'eventvico/supabase/migrations/**'
+  push:
+    branches: [main]
+    paths:
+      - 'eventvico/supabase/migrations/**'
+
+jobs:
+  migration-dry-run:
+    name: Migration Dry Run (PR)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Dry-run migrations
+        run: supabase db push --dry-run
+        working-directory: eventvico
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+  migration-apply:
+    name: Apply Migrations (main)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Apply migrations
+        run: supabase db push
+        working-directory: eventvico
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+      - name: Regenerate TypeScript types
+        run: |
+          supabase gen types typescript --linked > src/types/supabase.ts
+        working-directory: eventvico
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
