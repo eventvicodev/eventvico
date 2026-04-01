@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# Web build artifacts
+eventvico/node_modules/
+eventvico/.next/
+eventvico/tsconfig.tsbuildinfo
+
+# Python artifacts
+eventvico-ai/.venv/
+eventvico-ai/.pytest_cache/
+eventvico-ai/**/__pycache__/
+eventvico-ai/**/*.pyc
+
+# Secrets
+eventvico/.env.local
+eventvico-ai/.env

@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* EVENTVICO DESIGN SYSTEM — Tailwind v4 CSS-based token configuration        */
+/* UX-DR1: brand, clay, neutral, status palettes on 4px base spacing grid     */
+/* UX-DR2: Studio sans + portal serif typography                               */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+@theme inline {
+  /* ── Fonts ─────────────────────────────────────────────────────────────── */
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+
+  /* ── Brand palette — botanical green ───────────────────────────────────── */
+  --color-brand-50:  #f2f7f2;
+  --color-brand-100: #deeede;
+  --color-brand-200: #b8d9b8;
+  --color-brand-300: #8abd8a;
+  --color-brand-400: #5c9e5c;
+  --color-brand-500: #3a7d3a;  /* primary action colour */
+  --color-brand-600: #2e6430;  /* hover on primary */
+  --color-brand-700: #224b25;
+  --color-brand-800: #173319;
+  --color-brand-900: #0c1f0d;
+
+  /* ── Clay palette — warm portal accent ─────────────────────────────────── */
+  --color-clay-100: #f5ede6;
+  --color-clay-300: #ddb99a;
+  --color-clay-500: #b97d55;  /* portal approval CTA */
+  --color-clay-700: #7a4e2e;
+
+  /* ── Neutral palette — studio greys ────────────────────────────────────── */
+  --color-neutral-50:  #fafafa;
+  --color-neutral-100: #f4f4f5;
+  --color-neutral-200: #e4e4e7;
+  --color-neutral-300: #d1d1d6;
+  --color-neutral-400: #a1a1aa;
+  --color-neutral-500: #71717a;
+  --color-neutral-600: #52525b;
+  --color-neutral-700: #3f3f46;
+  --color-neutral-800: #27272a;
+  --color-neutral-900: #18181b;
+
+  /* ── Status colours ─────────────────────────────────────────────────────── */
+  --color-status-lead-bg:       #e4e4e7;  /* neutral-200 */
+  --color-status-lead-text:     #52525b;  /* neutral-600 */
+  --color-status-contacted-bg:  #dbeafe;
+  --color-status-contacted-text:#1e40af;
+  --color-status-proposal-bg:   #fef9c3;
+  --color-status-proposal-text: #854d0e;
+  --color-status-booked-bg:     #deeede;  /* brand-100 */
+  --color-status-booked-text:   #224b25;  /* brand-700 */
+  --color-status-progress-bg:   #ede9fe;
+  --color-status-progress-text: #5b21b6;
+  --color-status-complete-bg:   #f4f4f5;  /* neutral-100 */
+  --color-status-complete-text: #71717a;  /* neutral-500 */
+  --color-status-error-bg:      #fee2e2;
+  --color-status-error-text:    #991b1b;
+  --color-status-warning-bg:    #fef3c7;
+  --color-status-warning-text:  #92400e;
+  --color-status-success-bg:    #deeede;  /* brand-100 */
+  --color-status-success-text:  #224b25;  /* brand-700 */
+
+  /* ── Semantic surface tokens ────────────────────────────────────────────── */
+  --color-page:           #fafafa;   /* studio background */
+  --color-page-portal:    #ffffff;   /* portal background */
+  --color-card:           #ffffff;
+  --color-panel:          #f4f4f5;   /* studio right panel */
+  --color-border-default: #e4e4e7;   /* neutral-200 */
+  --color-border-focus:   #3a7d3a;   /* brand-500 — focus ring */
+
+  /* ── Spacing scale — 4px base grid ─────────────────────────────────────── */
+  /* Tailwind v4 uses default spacing; these add named aliases for design clarity */
+  --spacing-0:  0px;
+  --spacing-1:  4px;
+  --spacing-2:  8px;
+  --spacing-3:  12px;
+  --spacing-4:  16px;
+  --spacing-5:  20px;
+  --spacing-6:  24px;
+  --spacing-8:  32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+
+  /* ── Layout constants ───────────────────────────────────────────────────── */
+  --sidebar-width:          240px;
+  --sidebar-width-collapsed: 64px;
+  --header-height:           56px;
+}
+
+/* ── Base styles ──────────────────────────────────────────────────────────── */
+:root {
+  --background: var(--color-page);
+  --foreground: #18181b;  /* neutral-900 */
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Focus ring utility — UX-DR22 ──────────────────────────────────────────── */
+/* Applied via focus-visible: Tailwind utilities: ring-2 ring-brand-500 ring-offset-2 */
+
+/* ── Reduced motion support — UX-DR25 ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
