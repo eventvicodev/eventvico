@@ -1,11 +1,12 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { getPasswordRequirementMessages, registerStudioSchema } from '@/lib/schemas/auth'
+import { getPasswordRequirementMessages, loginSchema, registerStudioSchema } from '@/lib/schemas/auth'
 import type { ActionResult } from '@/types/app'
 import { headers } from 'next/headers'
 
 type RegisterStudioOwnerResult = ActionResult<{ redirectTo: string }>
+type SignInResult = ActionResult<{ redirectTo: string }>
 type StartGoogleOAuthResult = ActionResult<{ url: string }>
 type RequestPasswordResetResult = ActionResult<{ message: string }>
 type CompletePasswordResetResult = ActionResult<{ redirectTo: string }>
@@ -250,6 +251,71 @@ export async function registerStudioOwner(input: unknown): Promise<RegisterStudi
       error: {
         code: 'AUTH_SIGNUP_FAILED',
         message: 'Could not complete registration. Please try again.',
+      },
+    }
+  }
+}
+
+export async function signInWithEmailPassword(input: unknown): Promise<SignInResult> {
+  try {
+    const parsed = loginSchema.safeParse(input)
+    if (!parsed.success) {
+      const fields = parsed.error.flatten().fieldErrors
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Please correct the highlighted fields',
+          fields: Object.fromEntries(
+            Object.entries(fields).filter(([, v]) => v && v.length > 0)
+          ),
+        },
+      }
+    }
+
+    const { email, password } = parsed.data
+    const redirectTo = normalizeRedirectTo((input as { redirectTo?: string } | undefined)?.redirectTo)
+
+    const supabase = await createClient()
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) {
+      const normalized = getErrorMessage(error).toLowerCase()
+      const isInvalidCredentials =
+        normalized.includes('invalid login') ||
+        normalized.includes('invalid credentials') ||
+        normalized.includes('email not confirmed') ||
+        getErrorCode(error) === 'invalid_credentials'
+
+      if (isInvalidCredentials) {
+        return {
+          success: false,
+          error: {
+            code: 'INVALID_CREDENTIALS',
+            message: 'Incorrect email or password',
+          },
+        }
+      }
+
+      return {
+        success: false,
+        error: {
+          code: 'AUTH_SIGNIN_FAILED',
+          message: getErrorMessage(error) || 'Could not sign in. Please try again.',
+        },
+      }
+    }
+
+    return {
+      success: true,
+      data: { redirectTo },
+    }
+  } catch {
+    return {
+      success: false,
+      error: {
+        code: 'AUTH_SIGNIN_FAILED',
+        message: 'Could not sign in. Please try again.',
       },
     }
   }

@@ -28,6 +28,13 @@ export const registerStudioSchema = z.object({
 
 export type RegisterStudioInput = z.infer<typeof registerStudioSchema>
 
+export const loginSchema = z.object({
+  email: z.string().trim().email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
+})
+
+export type LoginInput = z.infer<typeof loginSchema>
+
 export function getPasswordRequirementMessages(password: string): string[] {
   const messages: string[] = []
 
