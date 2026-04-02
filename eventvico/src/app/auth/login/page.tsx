@@ -66,7 +66,7 @@ export default function LoginPage() {
     const result = await signInWithEmailPassword({ ...values, redirectTo })
 
     if (result.success) {
-      router.push(result.data.redirectTo)
+      window.location.assign(result.data.redirectTo)
       return
     }
 
