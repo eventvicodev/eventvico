@@ -132,3 +132,4 @@ Remove Pinterest URL from `RecipeGenerateRequest`. Direct image upload is the so
 ## Review
 
 This ADR is to be reviewed and confirmed after the pre-production benchmark (≥20 real studio images) before Story 4.2 is scheduled for a sprint.
+ci trigger Thu Apr  2 00:13:04 EDT 2026
