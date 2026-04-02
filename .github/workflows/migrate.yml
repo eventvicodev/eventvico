@@ -1,14 +1,21 @@
 name: Supabase Migrations
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
       - 'eventvico/supabase/migrations/**'
+      - '.github/workflows/migrate.yml'
   push:
     branches: [main]
     paths:
       - 'eventvico/supabase/migrations/**'
+      - '.github/workflows/migrate.yml'
+
+concurrency:
+  group: migrations-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   migration-dry-run:
@@ -17,6 +24,11 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate required migration secrets
+        run: |
+          test -n "${SUPABASE_ACCESS_TOKEN}" || (echo "Missing SUPABASE_ACCESS_TOKEN" && exit 1)
+          test -n "${SUPABASE_DB_PASSWORD}" || (echo "Missing SUPABASE_DB_PASSWORD" && exit 1)
 
       - uses: supabase/setup-cli@v1
         with:

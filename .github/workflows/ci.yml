@@ -1,6 +1,7 @@
 name: Next.js CI/CD
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -10,6 +11,11 @@ on:
     branches: [main]
     paths:
       - 'eventvico/**'
+      - '.github/workflows/ci.yml'
+
+concurrency:
+  group: nextjs-${{ github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
@@ -47,8 +53,14 @@ jobs:
     env:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_TELEMETRY_DISABLED: '1'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate required build secrets
+        run: |
+          test -n "${NEXT_PUBLIC_SUPABASE_URL}" || (echo "Missing NEXT_PUBLIC_SUPABASE_URL" && exit 1)
+          test -n "${NEXT_PUBLIC_SUPABASE_ANON_KEY}" || (echo "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY" && exit 1)
 
       - uses: actions/setup-node@v4
         with:

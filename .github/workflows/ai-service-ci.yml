@@ -1,6 +1,7 @@
 name: FastAPI AI Service CI/CD
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -10,6 +11,11 @@ on:
     branches: [main]
     paths:
       - 'eventvico-ai/**'
+      - '.github/workflows/ai-service-ci.yml'
+
+concurrency:
+  group: fastapi-${{ github.ref }}
+  cancel-in-progress: true
 
 defaults:
   run:
