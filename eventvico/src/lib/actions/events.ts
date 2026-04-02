@@ -3,6 +3,7 @@
 
 import type { ActionResult, FulfillmentStatus } from '@/types/app'
 import { createClient } from '@/lib/supabase/server'
+import { getTenantContext } from './tenant-context'
 
 type EventRecord = {
   id: string
@@ -30,29 +31,6 @@ type EventDetailResult = ActionResult<{
 }>
 type ExportIcsResult = ActionResult<{ filename: string; content: string }>
 type UpdateFulfillmentResult = ActionResult<{ eventId: string; allDelivered: boolean }>
-
-async function getTenantContext(): Promise<ActionResult<{ tenantId: string; userId: string }>> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user?.id) {
-    return { success: false, error: { code: 'AUTH_REQUIRED', message: 'Please sign in again.' } }
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  if (!profile?.tenant_id) {
-    return { success: false, error: { code: 'TENANT_NOT_FOUND', message: 'Could not find your studio account.' } }
-  }
-
-  return { success: true, data: { tenantId: profile.tenant_id, userId: user.id } }
-}
 
 function startOfWeek(date: Date) {
   const value = new Date(date)

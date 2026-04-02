@@ -3,6 +3,7 @@
 import { headers } from 'next/headers'
 import type { ActionResult } from '@/types/app'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import {
   cancelStripeSubscriptionAtPeriodEnd,
   createStripeCheckoutSession,
@@ -108,7 +109,9 @@ async function getTenantContext(requireEmail = false): Promise<ActionResult<Tena
     }
   }
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient()
+
+  const { data: profile } = await admin
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)
@@ -124,7 +127,7 @@ async function getTenantContext(requireEmail = false): Promise<ActionResult<Tena
     }
   }
 
-  const { data: tenant } = await supabase
+  const { data: tenant } = await admin
     .from('tenants')
     .select('id, plan_status, stripe_customer_id, stripe_subscription_id')
     .eq('id', profile.tenant_id)

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { registerUploadedImageAsset } from '@/lib/actions/compliance'
 
 type GenerateRequestBody = {
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const { data: profile } = await supabase
+  const { data: profile } = await createAdminClient()
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)

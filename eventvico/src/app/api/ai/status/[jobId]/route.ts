@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { buildBudgetAwareDraft } from '@/lib/ai/draft'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 // Stage labels match the 3-stage hybrid pipeline (ADR-001):
 //   Stage 1 — YOLO11m: detect flower regions (Detecting Flowers)
@@ -33,7 +34,7 @@ export async function GET(
     )
   }
 
-  const { data: profile } = await supabase
+  const { data: profile } = await createAdminClient()
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)

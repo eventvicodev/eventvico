@@ -2,11 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import type { ActionResult } from '@/types/app'
-
-type TenantContextResult = ActionResult<{
-  userId: string
-  tenantId: string
-}>
+import { getTenantContext, TenantContextResult } from './tenant-context'
 
 type FetchRecipeBuilderSnapshotResult = ActionResult<{
   recipes: Array<{
@@ -66,46 +62,6 @@ type SetInventoryUnavailableResult = ActionResult<{
   unavailable: boolean
 }>
 
-async function getTenantContext(): Promise<TenantContextResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user?.id) {
-    return {
-      success: false,
-      error: {
-        code: 'AUTH_REQUIRED',
-        message: 'Please sign in again to continue.',
-      },
-    }
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  if (!profile?.tenant_id) {
-    return {
-      success: false,
-      error: {
-        code: 'TENANT_NOT_FOUND',
-        message: 'Could not find your studio account.',
-      },
-    }
-  }
-
-  return {
-    success: true,
-    data: {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-    },
-  }
-}
 
 export async function fetchRecipeBuilderSnapshot(): Promise<FetchRecipeBuilderSnapshotResult> {
   try {

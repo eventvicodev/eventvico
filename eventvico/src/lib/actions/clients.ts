@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { isPipelineStage, pipelineStageLabels, pipelineStageOrder } from '@/lib/clients/pipeline'
 import { createClientActivitySchema, createClientSchema } from '@/lib/schemas/clients'
 import type { ActionResult, PipelineStage } from '@/types/app'
+import { getTenantContext, TenantContextResult } from './tenant-context'
 
 type CreateClientSuccessData =
   | { redirectTo: string }
@@ -79,11 +80,6 @@ type FetchDashboardOverviewResult = ActionResult<{
   }
 }>
 
-type TenantContextResult = ActionResult<{
-  userId: string
-  tenantId: string
-}>
-
 function mapZodFieldErrors(input: unknown): Record<string, string[]> | undefined {
   const parsed = createClientSchema.safeParse(input)
   if (parsed.success) return undefined
@@ -106,47 +102,6 @@ function mapActivityZodFieldErrors(input: unknown): Record<string, string[]> | u
     if (value && value.length > 0) mapped[key] = value
   })
   return Object.keys(mapped).length > 0 ? mapped : undefined
-}
-
-async function getTenantContext(): Promise<TenantContextResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user?.id) {
-    return {
-      success: false,
-      error: {
-        code: 'AUTH_REQUIRED',
-        message: 'Please sign in again to continue.',
-      },
-    }
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  if (!profile?.tenant_id) {
-    return {
-      success: false,
-      error: {
-        code: 'TENANT_NOT_FOUND',
-        message: 'Could not find your studio account.',
-      },
-    }
-  }
-
-  return {
-    success: true,
-    data: {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-    },
-  }
 }
 
 export async function createStudioClient(input: unknown): Promise<CreateClientResult> {

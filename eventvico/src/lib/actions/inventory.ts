@@ -9,11 +9,7 @@ import {
 } from '@/lib/schemas/inventory'
 import { normalizeInventoryCategory } from '@/lib/inventory/import'
 import type { ActionResult } from '@/types/app'
-
-type TenantContextResult = ActionResult<{
-  userId: string
-  tenantId: string
-}>
+import { getTenantContext, TenantContextResult } from './tenant-context'
 
 type FetchInventoryItemsResult = ActionResult<{
   tenantId: string
@@ -104,46 +100,6 @@ function mapInventoryFieldErrors(schema: typeof createInventoryItemSchema, input
   return Object.keys(mapped).length > 0 ? mapped : undefined
 }
 
-async function getTenantContext(): Promise<TenantContextResult> {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user?.id) {
-    return {
-      success: false,
-      error: {
-        code: 'AUTH_REQUIRED',
-        message: 'Please sign in again to continue.',
-      },
-    }
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('tenant_id')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  if (!profile?.tenant_id) {
-    return {
-      success: false,
-      error: {
-        code: 'TENANT_NOT_FOUND',
-        message: 'Could not find your studio account.',
-      },
-    }
-  }
-
-  return {
-    success: true,
-    data: {
-      userId: user.id,
-      tenantId: profile.tenant_id,
-    },
-  }
-}
 
 function isInventoryCategory(value: string): value is InventoryCategory {
   return value === 'flowers' || value === 'decor' || value === 'consumables'
