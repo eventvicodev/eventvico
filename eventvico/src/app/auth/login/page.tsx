@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, type FieldErrors } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { signInWithEmailPassword, startGoogleOAuth } from '@/lib/actions/auth'
@@ -18,6 +18,15 @@ function getInputClass(hasError: boolean) {
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
     hasError ? 'border-red-500' : 'border-neutral-300',
   ].join(' ')
+}
+
+async function runGoogleOAuth(redirectTo: string) {
+  const result = await startGoogleOAuth({ redirectTo, source: 'login' })
+  if (result.success) {
+    window.location.assign(result.data.url)
+    return { started: true as const }
+  }
+  return { started: false as const, message: result.error.message }
 }
 
 export default function LoginPage() {
@@ -78,23 +87,14 @@ export default function LoginPage() {
     setNonFieldError(result.error.message)
   }
 
-  const executeGoogleAuth = useCallback(async () => {
-    const result = await startGoogleOAuth({ redirectTo, source: 'login' })
-    if (result.success) {
-      window.location.assign(result.data.url)
-      return { started: true as const }
-    }
-    return { started: false as const, message: result.error.message }
-  }, [redirectTo])
-
-  const handleGoogleAuth = useCallback(async () => {
-    const outcome = await executeGoogleAuth()
+  const handleGoogleAuth = async () => {
+    const outcome = await runGoogleOAuth(redirectTo)
     if (outcome.started) return
     addToast('error', outcome.message, {
       label: 'Retry',
-      onClick: () => { void executeGoogleAuth() },
+      onClick: () => { void runGoogleOAuth(redirectTo) },
     })
-  }, [addToast, executeGoogleAuth])
+  }
 
   useEffect(() => {
     const oauthError = searchParams.get('oauth_error')
@@ -102,14 +102,14 @@ export default function LoginPage() {
     const oauthMessage = searchParams.get('oauth_message') ?? 'Google sign-in failed. Please try again.'
     addToast('error', oauthMessage, {
       label: 'Retry',
-      onClick: () => { void executeGoogleAuth() },
+      onClick: () => { void runGoogleOAuth(redirectTo) },
     })
     const nextParams = new URLSearchParams(searchParams.toString())
     nextParams.delete('oauth_error')
     nextParams.delete('oauth_message')
     const nextQuery = nextParams.toString()
     router.replace(nextQuery ? `/auth/login?${nextQuery}` : '/auth/login')
-  }, [addToast, executeGoogleAuth, router, searchParams])
+  }, [addToast, redirectTo, router, searchParams])
 
   useEffect(() => {
     const resetStatus = searchParams.get('reset')
