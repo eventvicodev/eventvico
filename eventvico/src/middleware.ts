@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { shouldRedirectToSubscription } from '@/lib/subscription/trial'
 
 const AI_RATE_LIMIT_PER_MINUTE = 10
@@ -54,7 +55,7 @@ export async function middleware(request: NextRequest) {
     const forwardedFor = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null
     let rateLimitKey = `ip:${forwardedFor ?? 'unknown'}`
     if (user?.id) {
-      const { data: profile } = await supabase
+      const { data: profile } = await createAdminClient()
         .from('profiles')
         .select('tenant_id')
         .eq('id', user.id)
@@ -101,7 +102,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  const { data: profile } = await supabase
+  const adminSupabase = createAdminClient()
+
+  const { data: profile } = await adminSupabase
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)
@@ -115,7 +118,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  const { data: tenant } = await supabase
+  const { data: tenant } = await adminSupabase
     .from('tenants')
     .select('plan_status, trial_ends_at')
     .eq('id', profile.tenant_id)
