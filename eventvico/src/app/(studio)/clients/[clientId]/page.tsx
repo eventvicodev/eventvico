@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { ClientActivities } from '@/app/(studio)/clients/[clientId]/client-activities'
 import { ClientPrivacyControls } from '@/app/(studio)/clients/[clientId]/client-privacy-controls'
 
@@ -20,7 +21,7 @@ export default async function ClientDetailPage({
     notFound()
   }
 
-  const { data: profile } = await supabase
+  const { data: profile } = await createAdminClient()
     .from('profiles')
     .select('tenant_id')
     .eq('id', user.id)

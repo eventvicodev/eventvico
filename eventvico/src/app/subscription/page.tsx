@@ -1,6 +1,7 @@
 import { SubscriptionCheckout } from '@/app/subscription/subscription-checkout'
 import { SubscriptionManagement } from '@/app/subscription/subscription-management'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 function normalizeRedirectTo(redirectTo?: string): string {
   if (!redirectTo) return '/dashboard'
@@ -26,7 +27,7 @@ export default async function SubscriptionPage({
   } = await supabase.auth.getUser()
 
   if (user?.id) {
-    const { data: profile } = await supabase
+    const { data: profile } = await createAdminClient()
       .from('profiles')
       .select('tenant_id')
       .eq('id', user.id)

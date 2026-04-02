@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import { fetchDashboardOverview, listFollowUpReminders } from '@/lib/actions/clients'
 import { NeedsAttention } from '@/app/(studio)/dashboard/needs-attention'
@@ -60,7 +61,7 @@ export default async function DashboardPage() {
   } | null = null
 
   if (user) {
-    const { data: profile } = await supabase
+    const { data: profile } = await createAdminClient()
       .from('profiles')
       .select('tenant_id')
       .eq('id', user.id)
