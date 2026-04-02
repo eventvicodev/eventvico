@@ -1,5 +1,6 @@
 'use server'
 
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getPasswordRequirementMessages, loginSchema, registerStudioSchema } from '@/lib/schemas/auth'
 import type { ActionResult } from '@/types/app'
@@ -478,4 +479,10 @@ export async function completePasswordReset(input: unknown): Promise<CompletePas
       },
     }
   }
+}
+
+export async function signOut(): Promise<void> {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/auth/login')
 }

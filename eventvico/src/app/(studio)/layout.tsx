@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { SignOutButton } from '@/app/(studio)/sign-out-button'
 
 export default function StudioLayout({
   children,
@@ -30,6 +31,9 @@ export default function StudioLayout({
               </Link>
             ))}
           </nav>
+          <div className="mt-auto">
+            <SignOutButton />
+          </div>
         </div>
       </aside>
 
