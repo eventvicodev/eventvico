@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { isPipelineStage, pipelineStageLabels, pipelineStageOrder } from '@/lib/clients/pipeline'
 import { createClientActivitySchema, createClientSchema } from '@/lib/schemas/clients'
 import type { ActionResult, PipelineStage } from '@/types/app'
@@ -133,7 +134,7 @@ export async function createStudioClient(input: unknown): Promise<CreateClientRe
       }
     }
 
-    const { data: profile } = await supabase
+    const { data: profile } = await createAdminClient()
       .from('profiles')
       .select('tenant_id')
       .eq('id', user.id)
@@ -450,7 +451,7 @@ export async function listClientActivities(clientId: string): Promise<ListClient
     }
 
     const loggedByIds = Array.from(new Set((data ?? []).map((item) => item.logged_by)))
-    const { data: profiles } = await supabase
+    const { data: profiles } = await createAdminClient()
       .from('profiles')
       .select('id, full_name')
       .in('id', loggedByIds)
