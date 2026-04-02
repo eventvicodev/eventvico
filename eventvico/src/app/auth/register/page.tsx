@@ -86,7 +86,7 @@ export default function RegisterPage() {
     if (result.success) {
       addToast('success', 'Account created. Redirecting to your dashboard...')
       window.setTimeout(() => {
-        router.push(result.data.redirectTo)
+        window.location.assign(result.data.redirectTo)
       }, 4000)
       return
     }
